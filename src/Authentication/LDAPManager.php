@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Rakoitde\Shieldldap\Authentication;
 
 use CodeIgniter\Shield\Entities\User;
-use stdClass;
 use LDAP\Connection;
 
 /**
@@ -13,16 +12,13 @@ use LDAP\Connection;
  */
 class LDAPManager
 {
-
     protected string $username;
-
     protected string $password;
-
     protected Connection|bool $connection;
-
     protected bool $bind = false;
 
-    public function __construct(string $username, string $password) {
+    public function __construct(string $username, string $password)
+    {
 
         $this->username = $username;
         $this->password = $password;
@@ -40,7 +36,7 @@ class LDAPManager
     private function connect()
     {
 
-        $ldap_host   = config('AuthLDAP')->ldap_host;
+        $ldap_host = config('AuthLDAP')->ldap_host;
 
         $this->connection = @ldap_connect($ldap_host);
 
@@ -50,16 +46,16 @@ class LDAPManager
 
     }
 
-    public function isConnected():bool
+    public function isConnected(): bool
     {
         return $this->connection !== false;
     }
 
-    public function auth() 
+    public function auth()
     {
 
         $ldap_domain = config('AuthLDAP')->ldap_domain;
-        $ldap_user = $ldap_domain . '\\' . $this->username;
+        $ldap_user   = $ldap_domain . '\\' . $this->username;
 
         ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
@@ -72,19 +68,19 @@ class LDAPManager
         return $this->bind !== false;
     }
 
-    public function getAttributes():array 
+    public function getAttributes(): array
     {
 
         $samaccountname = $this->username;
-        $base = "dc=int,dc=kkh-services,dc=local";
-        $filter="(samaccountname=$samaccountname)";
-        $attributes = array("objectSID", "distinguishedname", "displayName","description","cn","givenName","sn","mail","co","mobile","company","displayName","samaccountname", "thumbnailPhoto"); 
+        $base           = 'dc=int,dc=kkh-services,dc=local';
+        $filter         = "(samaccountname={$samaccountname})";
+        $attributes     = ['objectSID', 'distinguishedname', 'displayName', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'mobile', 'company', 'displayName', 'samaccountname', 'thumbnailPhoto'];
 
-        $result = @ldap_search($this->connection , $base , $filter, $attributes); 
-d($result);
-echo "ldap_error: " . ldap_error($this->connection);
-ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
-echo "ldap_get_option: $err";
+        $result = @ldap_search($this->connection, $base, $filter, $attributes);
+        d($result);
+        echo 'ldap_error: ' . ldap_error($this->connection);
+        ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+        echo "ldap_get_option: {$err}";
 
         $aduser = ldap_first_entry($this->connection, $result);
 

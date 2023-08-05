@@ -12,7 +12,6 @@ use CodeIgniter\I18n\Time;
 use CodeIgniter\Shield\Authentication\Actions\ActionInterface;
 use CodeIgniter\Shield\Authentication\AuthenticationException;
 use CodeIgniter\Shield\Authentication\AuthenticatorInterface;
-use Rakoitde\Shieldldap\Authentication\LDAPManager;
 use CodeIgniter\Shield\Entities\User;
 use CodeIgniter\Shield\Entities\UserIdentity;
 use CodeIgniter\Shield\Exceptions\InvalidArgumentException;
@@ -25,6 +24,7 @@ use CodeIgniter\Shield\Models\UserModel;
 use CodeIgniter\Shield\Result;
 use Config\Security;
 use Config\Services;
+use Rakoitde\Shieldldap\Authentication\LDAPManager;
 use stdClass;
 
 class LDAP implements AuthenticatorInterface
@@ -276,7 +276,7 @@ class LDAP implements AuthenticatorInterface
         // Determine the type of ID we're using.
         // Standard fields would be email, username,
         // but any column within config('Auth')->validFields can be used.
-        #$field = array_intersect(config('Auth')->validFields ?? [], array_keys($credentials));
+        // $field = array_intersect(config('Auth')->validFields ?? [], array_keys($credentials));
         $field = array_intersect(['username'], array_keys($credentials));
 
         if (count($field) !== 1) {

@@ -7,11 +7,10 @@ namespace Tests\Authentication\Authenticators;
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Shield\Authentication\Authentication;
 use CodeIgniter\Shield\Authentication\AuthenticationException;
-# use CodeIgniter\Shield\Authentication\Authenticators\Session;
-use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
+// use CodeIgniter\Shield\Authentication\Authenticators\Session;
 use CodeIgniter\Shield\Config\Auth;
-# use Rakoitde\Shieldldap\Config\AuthLDAP;
 use CodeIgniter\Shield\Entities\User;
+// use Rakoitde\Shieldldap\Config\AuthLDAP;
 use CodeIgniter\Shield\Exceptions\LogicException;
 use CodeIgniter\Shield\Models\RememberModel;
 use CodeIgniter\Shield\Models\UserIdentityModel;
@@ -19,6 +18,7 @@ use CodeIgniter\Shield\Models\UserModel;
 use CodeIgniter\Shield\Result;
 use CodeIgniter\Test\Mock\MockEvents;
 use Config\Services;
+use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
 use Tests\Support\DatabaseTestCase;
 use Tests\Support\FakeUser;
 
@@ -49,7 +49,7 @@ final class LdapAuthenticatorTest extends DatabaseTestCase
             'username',
         ];
 
-        $auth   = new Authentication($config);
+        $auth = new Authentication($config);
         $auth->setProvider(model(UserModel::class));
 
         /** @var LDAP $authenticator */
@@ -261,8 +261,8 @@ final class LdapAuthenticatorTest extends DatabaseTestCase
     public function testCheckNoPassword(): void
     {
         $result = $this->auth->check([
-            'username' => 'fooman', 
-            //'email' => 'johnsmith@example.com',
+            'username' => 'fooman',
+            // 'email' => 'johnsmith@example.com',
         ]);
 
         $this->assertInstanceOf(Result::class, $result);
@@ -273,8 +273,8 @@ final class LdapAuthenticatorTest extends DatabaseTestCase
     public function testCheckCannotFindUser(): void
     {
         $result = $this->auth->check([
-            'username' => 'fooman', 
-            //'email'    => 'johnsmith@example.com',
+            'username' => 'fooman',
+            // 'email'    => 'johnsmith@example.com',
             'password' => 'secret',
         ]);
 
@@ -355,7 +355,7 @@ final class LdapAuthenticatorTest extends DatabaseTestCase
     public function testAttemptCannotFindUser(): void
     {
         $result = $this->auth->attempt([
-            'username' => 'fooman2', 
+            'username' => 'fooman2',
             'email'    => 'johnsmith@example.com',
             'password' => 'secret',
         ]);
@@ -386,7 +386,7 @@ final class LdapAuthenticatorTest extends DatabaseTestCase
             'email'    => $this->user->email,
             'password' => 'DasIstGanzGeheim',
         ]);
-d($result);
+        d($result);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertTrue($result->isOK());
 
