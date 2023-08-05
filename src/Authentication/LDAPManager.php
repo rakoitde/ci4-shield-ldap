@@ -28,10 +28,7 @@ class LDAPManager
     }
 
     /**
-     * Checks a user's $credentials to see if they match an
-     * existing user.
-     *
-     * @phpstan-param array{email?: string, username?: string, password?: string} $credentials
+     * Connect to LDAP host
      */
     private function connect()
     {
@@ -46,11 +43,17 @@ class LDAPManager
 
     }
 
+    /**
+     * Check if it ist connected
+     */
     public function isConnected(): bool
     {
         return $this->connection !== false;
     }
 
+    /**
+     *  Authenticate user against LDAP host
+     */
     public function auth()
     {
 
@@ -63,11 +66,17 @@ class LDAPManager
         $this->bind = @ldap_bind($this->connection, $ldap_user, $this->password);
     }
 
+    /**
+     * Check if user is authenticated
+     */
     public function isAuthenticated(): bool
     {
         return $this->bind !== false;
     }
 
+    /**
+     * Get user attributes
+     */
     public function getAttributes(): array
     {
 
