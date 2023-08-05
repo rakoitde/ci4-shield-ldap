@@ -1,0 +1,48 @@
+{
+    "name": "rakoitde/shieldldap",
+    "description": "LDAP Authentication and Authorization for CodeIgniter 4",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Rakoitde\\Shieldldap\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kornberger, Ralf",
+            "email": "rakoitde@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "codeigniter4/shield": "dev-develop",
+        "ext-ldap": "*"
+    },
+    "require-dev": {
+        "codeigniter4/framework": "dev-master",
+        "codeigniter4/devkit": "^1.1",
+        "rector/rector": "^0.17.7"
+    },
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "analyze": [
+            "phpstan analyze",
+            "psalm",
+            "rector process --dry-run"
+        ],
+        "test": "phpunit",
+        "cs": [
+            "php-cs-fixer fix --ansi --verbose --dry-run --diff"
+        ],
+        "cs-fix": [
+            "php-cs-fixer fix --ansi --verbose --diff"
+        ],
+        "style": "@cs-fix"
+    }
+}
