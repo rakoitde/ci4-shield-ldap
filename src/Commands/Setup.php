@@ -159,10 +159,10 @@ class Setup extends BaseCommand
         $file = 'Config/Auth.php';
 
         $replaces = [
-            'public string $defaultAuthenticator = \'session\';' => 'public string $defaultAuthenticator = \'ldap\';',
+            "public string \$defaultAuthenticator = 'session';"  => "public string \$defaultAuthenticator = 'ldap';",
             'public bool $allowRegistration = true;'             => 'public bool $allowRegistration = false;',
             'public bool $allowMagicLinkLogins = true;'          => 'public bool $allowMagicLinkLogins = false;',
-            'public array $validFields = [\'email\', // \'username\'];', 'public array $validFields = [\'username\'];',
+            // 'public array $validFields = [\'email\', // \'username\'];', 'public array $validFields = [\'username\'];',
             'public string $userProvider = UserModel::class;', 'public string $userProvider = \\Rakoitde\\Shieldldap\\Models\\UserModel::class;',
         ];
 
