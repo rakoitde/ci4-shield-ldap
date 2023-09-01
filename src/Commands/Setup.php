@@ -87,7 +87,9 @@ class Setup extends BaseCommand
 
         $this->updatesRoutes();
 
-        $this->runMigrations();
+        $this->updatesFilters();
+
+        // $this->runMigrations();
     }
 
     /**
@@ -159,11 +161,56 @@ class Setup extends BaseCommand
         $file = 'Config/Auth.php';
 
         $replaces = [
-            "public string \$defaultAuthenticator = 'session';"  => "public string \$defaultAuthenticator = 'ldap';",
-            'public bool $allowRegistration = true;'             => 'public bool $allowRegistration = false;',
-            'public bool $allowMagicLinkLogins = true;'          => 'public bool $allowMagicLinkLogins = false;',
-            // 'public array $validFields = [\'email\', // \'username\'];', 'public array $validFields = [\'username\'];',
-            'public string $userProvider = UserModel::class;', 'public string $userProvider = \\Rakoitde\\Shieldldap\\Models\\UserModel::class;',
+            'public string $defaultAuthenticator = \'session\';'        => 'public string $defaultAuthenticator = \'ldap\';',
+            'public bool $allowRegistration = true;'                    => 'public bool $allowRegistration = false;',
+            'public bool $allowMagicLinkLogins = true;'                 => 'public bool $allowMagicLinkLogins = false;',
+            //
+            'public array $validFields = [
+        \'email\',
+        // \'username\',
+    ];'                                                                 => 'public array $validFields = [\'username\'];',
+            //
+            'public string $userProvider = UserModel::class;'           => "public string \$userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;",
+            //
+            'public array $authenticators = [
+        \'tokens\'  => AccessTokens::class,
+        \'session\' => Session::class,
+        // \'jwt\'     => JWT::class,
+    ];'                                                                 => 'public array $authenticators = [
+        \'tokens\'  => AccessTokens::class,
+        \'session\' => Session::class,
+        \'ldap\'    => LDAP::class,
+    ];',
+            //
+            "'login'                       => '\CodeIgniter\Shield\Views\login'," => "'login'                       => '\Rakoitde\Shieldldap\Views\login',",
+            //
+            'NothingPersonalValidator::class,'                          => '// NothingPersonalValidator::class,',
+            //
+            'public array $validFields = [
+        \'email\',
+        // \'username\',
+    ];'                                                                 => 'public array $validFields = [
+        \'username\'
+    ];',
+            //
+            'public string $userProvider = UserModel::class;'           => 'public string $userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;',
+            'use CodeIgniter\Shield\Models\UserModel;'                  => 'use Rakoitde\Shieldldap\Models\UserModel;
+use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
+
+        ];
+
+        if ($this->replace($file, $replaces)) {
+            return;
+        }
+    }
+
+    private function updatesFilters(): void
+    {
+        $file = 'Config/Filters.php';
+
+        $replaces = [
+            '\'before\' => ['                                           => '\'before\' => [
+            \'session\' => [\'except\' => [\'login*\', \'register\', \'auth/a/*\']],',
         ];
 
         if ($this->replace($file, $replaces)) {
