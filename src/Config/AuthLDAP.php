@@ -37,6 +37,19 @@ class AuthLDAP extends BaseConfig
     public string $ldap_domain = 'example';
 
     /**
+     * The ldaps searchbase like "dc=int,dc=company,dc=local" 
+     */
+    public string $search_base = '';
+
+    /**
+     * The ldap attributes
+     *
+     * @var string[]
+     */
+    public array $attributes = [
+        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress','displayName', 'samaccountname', 'thumbnailPhoto'];
+
+    /**
      * /**
      * --------------------------------------------------------------------
      * Record Login Attempts
