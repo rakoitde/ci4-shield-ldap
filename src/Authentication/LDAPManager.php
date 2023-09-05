@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rakoitde\Shieldldap\Authentication;
 
 use CodeIgniter\Shield\Entities\User;
+use Rakoitde\Shieldldap\Config\AuthLDAP;
 use LDAP\Connection;
 use UnexpectedValueException;
 
@@ -22,9 +23,12 @@ class LDAPManager
     protected string $ldap_diagnostic_message;
     protected array $attributes;
     protected array $group_sids;
+    protected AuthLDAP $config;
 
     public function __construct(string $username, string $password)
     {
+
+        $this->config = config('AuthLDAP');
 
         $this->username = $username;
         $this->password = $password;
@@ -39,9 +43,7 @@ class LDAPManager
     private function connect()
     {
 
-        $ldap_host = config('AuthLDAP')->ldap_host;
-
-        $this->connection = @ldap_connect($ldap_host);
+        $this->connection = @ldap_connect($this->config->ldap_host);
 
         if ($this->isConnected()) {
             $this->auth();
@@ -92,11 +94,9 @@ class LDAPManager
     {
 
         $samaccountname = $this->username;
-        $base           = 'dc=int,dc=kkh-services,dc=local';
         $filter         = "(samaccountname={$samaccountname})";
-        $attributes     = ['objectSID', 'distinguishedname', 'displayName', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'mobile', 'company', 'displayName', 'samaccountname', 'thumbnailPhoto'];
 
-        $result = @ldap_search($this->connection, $base, $filter, $attributes);
+        $result = @ldap_search($this->connection, $this->config->search_base, $filter, $this->config->attributes);
 
         if ($result === false) {
             $this->ldap_error = ldap_error($this->connection);
