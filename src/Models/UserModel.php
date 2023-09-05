@@ -15,7 +15,7 @@ class UserModel extends ShieldUserModel
         $this->allowedFields = [
             ...$this->allowedFields,
 
-            'username',
+            'mail','object_sid','dn','ldap_attributes','ldap_group_sids',
         ];
     }
 }
