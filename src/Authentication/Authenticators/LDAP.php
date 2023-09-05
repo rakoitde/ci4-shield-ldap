@@ -344,6 +344,16 @@ class LDAP implements AuthenticatorInterface
         }
 
         if ($ldapManager->isAuthenticated()) {
+
+            // Update user entity with ldap attributes and group sids
+            $ldapAttributes        = $ldapManager->getAttributes();
+            $user->mail            = $ldapAttributes['mail'];
+            $user->dn              = $ldapAttributes['distinguishedName'];
+            $user->object_sid      = $ldapAttributes['objectSid'];
+            $user->ldap_attributes = json_encode($ldapAttributes);
+            $user->ldap_group_sids = json_encode($ldapManager->getGroupSids());
+            $this->provider->update($user->id, $user);
+
             return new Result([
                 'success'   => true,
                 'extraInfo' => $user,
