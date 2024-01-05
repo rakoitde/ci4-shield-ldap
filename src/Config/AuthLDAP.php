@@ -6,11 +6,13 @@ namespace Rakoitde\Shieldldap\Config;
 
 use App\Config\Auth;
 use CodeIgniter\Config\BaseConfig;
+#use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
 
 /**
  * LDAP Authenticator Configuration
  */
 class AuthLDAP extends BaseConfig
+#class AuthLDAP extends ShieldAuthLDAP
 {
     public const RECORD_LOGIN_ATTEMPT_NONE    = 0; // Do not record at all
     public const RECORD_LOGIN_ATTEMPT_FAILURE = 1; // Record only failures
