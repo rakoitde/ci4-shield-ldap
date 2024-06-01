@@ -16,7 +16,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "codeigniter4/shield": "dev-develop",
+        "codeigniter4/shield": "^1.0",
         "ext-ldap": "*"
     },
     "require-dev": {

@@ -166,13 +166,10 @@ class Setup extends BaseCommand
             'public bool $allowMagicLinkLogins = true;'          => 'public bool $allowMagicLinkLogins = false;',
             'public array $authenticators = [
         \'tokens\'  => AccessTokens::class,
-        \'session\' => Session::class,
-        // \'jwt\'     => JWT::class,
-    ];' => 'public array $authenticators = [
+        \'session\' => Session::class,' => 'public array $authenticators = [
         \'tokens\'  => AccessTokens::class,
         \'session\' => Session::class,
-        \'ldap\'    => LDAP::class,
-    ];',
+        \'ldap\'    => LDAP::class,',
             "'login'                       => '\\CodeIgniter\\Shield\\Views\\login'," => "'login'                       => '\\Rakoitde\\Shieldldap\\Views\\login',",
             'NothingPersonalValidator::class,'                                        => '// NothingPersonalValidator::class,',
             'public array $validFields = [
@@ -184,7 +181,6 @@ class Setup extends BaseCommand
             'public string $userProvider = UserModel::class;' => 'public string $userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;',
             'use CodeIgniter\Shield\Models\UserModel;'        => 'use Rakoitde\Shieldldap\Models\UserModel;
 use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
-
         ];
 
         if ($this->replace($file, $replaces)) {
@@ -197,7 +193,9 @@ use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
         $file = 'Config/Filters.php';
 
         $replaces = [
-            '\'before\' => [' => '\'before\' => [
+            'public array $globals = [
+        \'before\' => [' => 'public array $globals = [
+        \'before\' => [
             \'session\' => [\'except\' => [\'login*\', \'register\', \'auth/a/*\']],',
         ];
 

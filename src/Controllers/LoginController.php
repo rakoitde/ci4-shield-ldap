@@ -11,7 +11,6 @@ use CodeIgniter\Shield\Authentication\Passwords;
 // use CodeIgniter\Shield\Config\AuthSession;
 
 use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
-
 use Rakoitde\Shieldldap\Config\AuthLDAP;
 
 class LoginController extends BaseController
@@ -55,7 +54,7 @@ class LoginController extends BaseController
     /**
      * Returns the rules that should be used for validation.
      *
-     * @return array<string, array<string, array<string>|string>>
+     * @return         array<string, array<string, list<string>|string>>
      * @phpstan-return array<string, array<string, string|list<string>>>
      */
     protected function getValidationRules(): array
