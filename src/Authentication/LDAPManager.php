@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Rakoitde\Shieldldap\Authentication;
 
 use CodeIgniter\Shield\Entities\User;
-use Rakoitde\Shieldldap\Config\AuthLDAP;
 use LDAP\Connection;
+use Rakoitde\Shieldldap\Config\AuthLDAP;
 use UnexpectedValueException;
 
 /**
@@ -23,18 +23,40 @@ class LDAPManager
     protected string $ldap_diagnostic_message;
     protected array $attributes;
     protected array $group_sids;
+    protected array $userAccountControl;
     protected AuthLDAP $config;
+
+    public const UAC_SCRIPT = 1;   // hex = 0x0001
+    public const UAC_ACCOUNTDISABLE = 2;   // hex = 0x0002
+    public const UAC_HOMEDIR_REQUIRED = 8;   // hex = 0x0008
+    public const UAC_LOCKOUT = 16;   // hex = 0x0010
+    public const UAC_PASSWD_NOTREQD = 32;   // hex = 0x0020
+    public const UAC_PASSWD_CANT_CHANGE = 64;   // hex = 0x0040
+    public const UAC_ENCRYPTED_TEXT_PWD_ALLOWED = 128;   // hex = 0x0080
+    public const UAC_TEMP_DUPLICATE_ACCOUNT = 256;   // hex = 0x0100
+    public const UAC_NORMAL_ACCOUNT = 512;   // hex = 0x0200
+    public const UAC_INTERDOMAIN_TRUST_ACCOUNT = 2048;   // hex = 0x0800
+    public const UAC_WORKSTATION_TRUST_ACCOUNT = 4096;   // hex = 0x1000
+    public const UAC_SERVER_TRUST_ACCOUNT = 8192;   // hex = 0x2000
+    public const UAC_DONT_EXPIRE_PASSWORD = 65536;   // hex = 0x10000
+    public const UAC_MNS_LOGON_ACCOUNT = 131072;   // hex = 0x20000
+    public const UAC_SMARTCARD_REQUIRED = 262144;   // hex = 0x40000
+    public const UAC_TRUSTED_FOR_DELEGATION = 524288;   // hex = 0x80000
+    public const UAC_NOT_DELEGATED = 1048576;   // hex = 0x100000
+    public const UAC_USE_DES_KEY_ONLY = 2097152;   // hex = 0x200000
+    public const UAC_DONT_REQ_PREAUTH = 4194304;   // hex = 0x400000
+    public const UAC_PASSWORD_EXPIRED = 8388608;   // hex = 0x800000
+    public const UAC_TRUSTED_TO_AUTH_FOR_DELEGATION = 16777216;   // hex = 0x1000000
+    public const UAC_PARTIAL_SECRETS_ACCOUNT = 67108864;   // hex = 0x04000000
 
     public function __construct(string $username, string $password)
     {
-
         $this->config = config('AuthLDAP');
 
         $this->username = $username;
         $this->password = $password;
 
         $this->connect();
-
     }
 
     /**
@@ -43,7 +65,21 @@ class LDAPManager
     private function connect()
     {
 
-        $this->connection = @ldap_connect($this->config->ldap_host);
+        if ($this->config->use_ldaps) {
+            //ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            $ldapuri = "ldaps://" . $this->config->ldap_host. ":" . $this->config->ldaps_port;
+        } else {
+            $ldapuri = "ldap://" . $this->config->ldap_host. ":" . $this->config->ldap_port;
+        }
+
+
+        $messages = ['ldapuri' => $ldapuri];
+
+        log_message('info', 'LdapConnect: To LdapUri {ldapuri}', $messages);
+
+        $this->connection = @ldap_connect($ldapuri);
+
+        log_message('error', json_encode(ldap_error($this->connection)));
 
         if ($this->isConnected()) {
             $this->auth();
@@ -53,7 +89,6 @@ class LDAPManager
             $this->attributes = $this->loadAttributes();
             $this->group_sids = $this->loadTokengroups();
         }
-
     }
 
     /**
@@ -65,11 +100,18 @@ class LDAPManager
     }
 
     /**
+     * Check if it ist connected
+     */
+    public function getConnection(): bool
+    {
+        return $this->connection !== false;
+    }
+
+    /**
      *  Authenticate user against LDAP host
      */
     public function auth()
     {
-
         $ldap_domain = config('AuthLDAP')->ldap_domain;
         $ldap_user   = $ldap_domain . '\\' . $this->username;
 
@@ -77,6 +119,8 @@ class LDAPManager
         ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
 
         $this->bind = @ldap_bind($this->connection, $ldap_user, $this->password);
+
+        log_message('error', json_encode(ldap_error($this->connection)));
     }
 
     /**
@@ -90,13 +134,12 @@ class LDAPManager
     /**
      * Get user attributes
      */
-    public function loadAttributes(): array
+    public function loadAttributes(?string $username = null, ?array $ldapAttributes = null): ?array
     {
-
-        $samaccountname = $this->username;
+        $samaccountname = $username ?? $this->username;
+        $ldapAttributes = $ldapAttributes ?? $this->config->attributes;
         $filter         = "(samaccountname={$samaccountname})";
-
-        $result = @ldap_search($this->connection, $this->config->search_base, $filter, $this->config->attributes);
+        $result = @ldap_search($this->connection, $this->config->search_base, $filter, $ldapAttributes);
 
         if ($result === false) {
             $this->ldap_error = ldap_error($this->connection);
@@ -108,6 +151,8 @@ class LDAPManager
         }
 
         $aduser = ldap_first_entry($this->connection, $result);
+
+        if ($aduser === false) { return null; }
 
         $adattributes = ldap_get_attributes($this->connection, $aduser);
 
@@ -136,7 +181,8 @@ class LDAPManager
             $attributes[$key] = $value;
         }
 
-        // <img src="data:image/jpeg;base64,<?php echo base64_encode($aduser['thumbnailPhoto'][0]); ? >" />
+        $this->attributes = $attributes;
+
         return $attributes;
     }
 
@@ -156,7 +202,6 @@ class LDAPManager
 
     public function loadTokengroups(bool $return_group_sids = true)
     {
-
         if (! isset($this->dn)) {
             return [];
         }
@@ -191,6 +236,30 @@ class LDAPManager
 
         return $groups;
     }
+
+    public function loadUserAccountControl()
+    {
+
+        if (! isset($this->adattributes['UserAccountControl'])) {
+            return '';
+        }
+
+    }
+
+    /**
+     * Check if user account is disabled
+     */
+    public function isAccountDisabled(): bool
+    {
+
+        if (! isset($this->adattributes['UserAccountControl'])) {
+            return '';
+        }
+
+        return ($this->adattributes['UserAccountControl'] & self::UAC_ACCOUNTDISABLE) == self::UAC_ACCOUNTDISABLE;
+
+    }
+
 
     public function getGroupSids()
     {
@@ -228,5 +297,38 @@ class LDAPManager
             '',
             preg_filter('/^/', '-', $subAuthorities)
         );
+    }
+
+    public function ldapAttribute(string $attribute): string
+    {
+        return $this->attributes[$attribute] ?? '';
+    }
+
+    /**
+     * Check if user account is disabled
+     */
+    public function isLdapAccountDisabled(): ?bool
+    {
+
+        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+            return null;
+        }
+
+        return (intval($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) == LDAPManager::UAC_ACCOUNTDISABLE;
+
+    }
+
+    /**
+     * Check if user account is disabled
+     */
+    public function isLdapAccountEnabled(): ?bool
+    {
+
+        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+            return null;
+        }
+
+        return (intval($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) != LDAPManager::UAC_ACCOUNTDISABLE;
+
     }
 }
