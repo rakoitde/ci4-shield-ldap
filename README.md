@@ -32,6 +32,24 @@ Installation is done through Composer.
 composer require rakoitde/shieldldap dev-develop
 ```
 
+### Config AuthLdap in .env
+
+It is recommended that the AuthLdap settings are made in the .env to prevent internal company information from becoming public
+
+```console
+#--------------------------------------------------------------------
+# Shield AuthLdap
+#--------------------------------------------------------------------
+
+authldap.ldap_host              = 
+authldap.ldap_domain            = 
+authldap.search_base            = 
+authldap.storePasswordInSession = false
+authldap.use_ldaps              = true
+authldap.username               = 
+authldap.password               = 
+```
+
 See the (docs)[docs] for more specific instructions on installation and usage recommendations.
 
 ## Contributing
