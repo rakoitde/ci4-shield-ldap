@@ -184,7 +184,6 @@ class Setup extends BaseCommand
             'public string $userProvider = UserModel::class;' => 'public string $userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;',
             'use CodeIgniter\Shield\Models\UserModel;'        => 'use Rakoitde\Shieldldap\Models\UserModel;
 use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
-
         ];
 
         if ($this->replace($file, $replaces)) {

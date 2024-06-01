@@ -6,13 +6,13 @@ namespace Rakoitde\Shieldldap\Config;
 
 use App\Config\Auth;
 use CodeIgniter\Config\BaseConfig;
-#use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
+
+// use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
 
 /**
  * LDAP Authenticator Configuration
  */
-class AuthLDAP extends BaseConfig
-#class AuthLDAP extends ShieldAuthLDAP
+class AuthLDAP extends BaseConfig // class AuthLDAP extends ShieldAuthLDAP
 {
     public const RECORD_LOGIN_ATTEMPT_NONE    = 0; // Do not record at all
     public const RECORD_LOGIN_ATTEMPT_FAILURE = 1; // Record only failures
@@ -61,10 +61,10 @@ class AuthLDAP extends BaseConfig
     /**
      * The ldap attributes
      *
-     * @var string[]
+     * @var list<string>
      */
     public array $attributes = [
-        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress','displayName', 'samaccountname', 'thumbnailPhoto', 'userAccountControl'];
+        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress', 'displayName', 'samaccountname', 'thumbnailPhoto', 'userAccountControl'];
 
     /**
      * Store encrypted Password in session
@@ -88,7 +88,7 @@ class AuthLDAP extends BaseConfig
     /**
      * The validation rules for username
      *
-     * @var string[]
+     * @var list<string>
      */
     public array $usernameValidationRules = [
         'required',

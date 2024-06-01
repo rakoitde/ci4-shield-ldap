@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Rakoitde\Shieldldap\Entities;
 
-use App\Models\CompanyModel;
 use CodeIgniter\Shield\Entities\User as ShieldUserEntity;
-use stdClass;
 use Rakoitde\Shieldldap\Authentication\LDAPManager;
+use stdClass;
 
 class User extends ShieldUserEntity
 {
@@ -46,13 +45,11 @@ class User extends ShieldUserEntity
      */
     public function isLdapAccountDisabled(): ?bool
     {
-
-        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+        if ($this->ldapAttribute('userAccountControl') === '') {
             return null;
         }
 
-        return (intval($this->ldapAttribute('UserAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) == LDAPManager::UAC_ACCOUNTDISABLE;
-
+        return ((int) ($this->ldapAttribute('UserAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) === LDAPManager::UAC_ACCOUNTDISABLE;
     }
 
     /**
@@ -60,12 +57,10 @@ class User extends ShieldUserEntity
      */
     public function isLdapAccountEnabled(): ?bool
     {
-
-        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+        if ($this->ldapAttribute('userAccountControl') === '') {
             return null;
         }
 
-        return !((intval($this->ldapAttribute('UserAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) == LDAPManager::UAC_ACCOUNTDISABLE);
-
+        return ! (((int) ($this->ldapAttribute('UserAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) === LDAPManager::UAC_ACCOUNTDISABLE);
     }
 }

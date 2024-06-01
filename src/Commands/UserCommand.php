@@ -7,8 +7,8 @@ namespace Rakoitde\Shieldldap\Commands;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use Rakoitde\Shieldldap\Authentication\LDAPManager;
-use Rakoitde\Shieldldap\Models\UserModel;
 use Rakoitde\Shieldldap\Entities\User;
+use Rakoitde\Shieldldap\Models\UserModel;
 
 class UserCommand extends BaseCommand
 {
@@ -58,8 +58,8 @@ class UserCommand extends BaseCommand
      * @var array
      */
     protected $options = [
-        '-n'  => "User Name (samAccountName)",
-        '-g'  => "Group name",
+        '-n' => 'User Name (samAccountName)',
+        '-g' => 'Group name',
     ];
 
     protected array $possibleActions = [
@@ -68,41 +68,38 @@ class UserCommand extends BaseCommand
 
     /**
      * Actually execute a command.
-     *
-     * @param array $params
      */
     public function run(array $params)
     {
-
-        if (!isset($params[0]) || !in_array($params[0], $this->possibleActions)) {
+        if (! isset($params[0]) || ! in_array($params[0], $this->possibleActions, true)) {
             $this->showHelp();
+
             return;
         }
 
         $action = $params[0];
 
         $this->username = $params['u'] ?? $params['username'] ?? CLI::prompt('Username');
-        $this->group    = $params['g'] ?? $params['group'] ?? config("AuthGroups")->defaultGroup;
+        $this->group    = $params['g'] ?? $params['group'] ?? config('AuthGroups')->defaultGroup;
 
         $this->create();
-
     }
 
     public function create()
     {
-
         CLI::print('Create User: ' . CLI::color($this->username, 'white'), 'yellow');
 
-        $authLdapConfig = config("AuthLDAP");
-        $ldapManager = new LDAPManager($authLdapConfig->username, $authLdapConfig->password);
+        $authLdapConfig = config('AuthLDAP');
+        $ldapManager    = new LDAPManager($authLdapConfig->username, $authLdapConfig->password);
 
-        if (!$ldapManager->isConnected()) {
-            CLI::write("Not connected!");
+        if (! $ldapManager->isConnected()) {
+            CLI::write('Not connected!');
+
             return;
         }
 
         $ldapAttributes = ['sAMAccountName', 'mail', 'objectSid', 'distinguishedName', 'userAccountControl'];
-        $attributes = $ldapManager->loadAttributes($this->username, $ldapAttributes);
+        $attributes     = $ldapManager->loadAttributes($this->username, $ldapAttributes);
 
         $data = [
             'username'        => $attributes['sAMAccountName'],
@@ -114,14 +111,14 @@ class UserCommand extends BaseCommand
             'active'          => $ldapManager->isLdapAccountEnabled(),
         ];
 
-        $userModel = model(UserModel::class);
+        $userModel  = model(UserModel::class);
         $userEntity = $userModel->where('username', $this->username)->first();
 
         $prompt = 'Create?';
         if ($userEntity) {
             $data['id'] = $userEntity->id;
-            $prompt = 'Update?';
-            CLI::print(' ID: ' . CLI::color(strval($userEntity->id), 'white'), 'yellow');
+            $prompt     = 'Update?';
+            CLI::print(' ID: ' . CLI::color((string) ($userEntity->id), 'white'), 'yellow');
         }
 
         CLI::newline();
@@ -133,8 +130,7 @@ class UserCommand extends BaseCommand
 
         $overwrite = CLI::prompt($prompt, ['y', 'n']);
 
-        if (trim($overwrite) == "y") {
-
+        if (trim($overwrite) === 'y') {
             $user = new User($data);
             $userModel->save($user);
 
@@ -147,7 +143,5 @@ class UserCommand extends BaseCommand
                 CLI::newline();
             }
         }
-
     }
-
 }

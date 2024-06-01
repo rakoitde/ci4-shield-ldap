@@ -8,7 +8,6 @@ class AlterTableUsers extends Migration
 {
     public function up()
     {
-
         $fields = [
             'mail'            => ['type' => 'VARCHAR', 'constraint' => 50, 'after' => 'username'],
             'object_sid'      => ['type' => 'VARCHAR', 'constraint' => 50, 'after' => 'mail'],
@@ -18,13 +17,10 @@ class AlterTableUsers extends Migration
         ];
 
         $this->forge->addColumn('users', $fields);
-
     }
 
     public function down()
     {
-
         $this->forge->dropColumn('users', ['mail', 'object_sid', 'dn', 'ldap_attributes', 'ldap_group_sids']);
-
     }
 }

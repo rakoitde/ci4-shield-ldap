@@ -103,7 +103,6 @@ return static function (RectorConfig $rectorConfig): void {
 
         // May be uninitialized on purpose
         AddDefaultValueForUndefinedVariableRector::class,
-
     ]);
     // auto import fully qualified class names
     $rectorConfig->importNames();

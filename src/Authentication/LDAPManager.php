@@ -14,6 +14,29 @@ use UnexpectedValueException;
  */
 class LDAPManager
 {
+    public const UAC_SCRIPT                         = 1;   // hex = 0x0001
+    public const UAC_ACCOUNTDISABLE                 = 2;   // hex = 0x0002
+    public const UAC_HOMEDIR_REQUIRED               = 8;   // hex = 0x0008
+    public const UAC_LOCKOUT                        = 16;   // hex = 0x0010
+    public const UAC_PASSWD_NOTREQD                 = 32;   // hex = 0x0020
+    public const UAC_PASSWD_CANT_CHANGE             = 64;   // hex = 0x0040
+    public const UAC_ENCRYPTED_TEXT_PWD_ALLOWED     = 128;   // hex = 0x0080
+    public const UAC_TEMP_DUPLICATE_ACCOUNT         = 256;   // hex = 0x0100
+    public const UAC_NORMAL_ACCOUNT                 = 512;   // hex = 0x0200
+    public const UAC_INTERDOMAIN_TRUST_ACCOUNT      = 2048;   // hex = 0x0800
+    public const UAC_WORKSTATION_TRUST_ACCOUNT      = 4096;   // hex = 0x1000
+    public const UAC_SERVER_TRUST_ACCOUNT           = 8192;   // hex = 0x2000
+    public const UAC_DONT_EXPIRE_PASSWORD           = 65536;   // hex = 0x10000
+    public const UAC_MNS_LOGON_ACCOUNT              = 131072;   // hex = 0x20000
+    public const UAC_SMARTCARD_REQUIRED             = 262144;   // hex = 0x40000
+    public const UAC_TRUSTED_FOR_DELEGATION         = 524288;   // hex = 0x80000
+    public const UAC_NOT_DELEGATED                  = 1048576;   // hex = 0x100000
+    public const UAC_USE_DES_KEY_ONLY               = 2097152;   // hex = 0x200000
+    public const UAC_DONT_REQ_PREAUTH               = 4194304;   // hex = 0x400000
+    public const UAC_PASSWORD_EXPIRED               = 8388608;   // hex = 0x800000
+    public const UAC_TRUSTED_TO_AUTH_FOR_DELEGATION = 16777216;   // hex = 0x1000000
+    public const UAC_PARTIAL_SECRETS_ACCOUNT        = 67108864;   // hex = 0x04000000
+
     protected string $username;
     protected string $password;
     protected Connection|bool $connection;
@@ -25,29 +48,6 @@ class LDAPManager
     protected array $group_sids;
     protected array $userAccountControl;
     protected AuthLDAP $config;
-
-    public const UAC_SCRIPT = 1;   // hex = 0x0001
-    public const UAC_ACCOUNTDISABLE = 2;   // hex = 0x0002
-    public const UAC_HOMEDIR_REQUIRED = 8;   // hex = 0x0008
-    public const UAC_LOCKOUT = 16;   // hex = 0x0010
-    public const UAC_PASSWD_NOTREQD = 32;   // hex = 0x0020
-    public const UAC_PASSWD_CANT_CHANGE = 64;   // hex = 0x0040
-    public const UAC_ENCRYPTED_TEXT_PWD_ALLOWED = 128;   // hex = 0x0080
-    public const UAC_TEMP_DUPLICATE_ACCOUNT = 256;   // hex = 0x0100
-    public const UAC_NORMAL_ACCOUNT = 512;   // hex = 0x0200
-    public const UAC_INTERDOMAIN_TRUST_ACCOUNT = 2048;   // hex = 0x0800
-    public const UAC_WORKSTATION_TRUST_ACCOUNT = 4096;   // hex = 0x1000
-    public const UAC_SERVER_TRUST_ACCOUNT = 8192;   // hex = 0x2000
-    public const UAC_DONT_EXPIRE_PASSWORD = 65536;   // hex = 0x10000
-    public const UAC_MNS_LOGON_ACCOUNT = 131072;   // hex = 0x20000
-    public const UAC_SMARTCARD_REQUIRED = 262144;   // hex = 0x40000
-    public const UAC_TRUSTED_FOR_DELEGATION = 524288;   // hex = 0x80000
-    public const UAC_NOT_DELEGATED = 1048576;   // hex = 0x100000
-    public const UAC_USE_DES_KEY_ONLY = 2097152;   // hex = 0x200000
-    public const UAC_DONT_REQ_PREAUTH = 4194304;   // hex = 0x400000
-    public const UAC_PASSWORD_EXPIRED = 8388608;   // hex = 0x800000
-    public const UAC_TRUSTED_TO_AUTH_FOR_DELEGATION = 16777216;   // hex = 0x1000000
-    public const UAC_PARTIAL_SECRETS_ACCOUNT = 67108864;   // hex = 0x04000000
 
     public function __construct(string $username, string $password)
     {
@@ -64,14 +64,12 @@ class LDAPManager
      */
     private function connect()
     {
-
         if ($this->config->use_ldaps) {
-            //ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
-            $ldapuri = "ldaps://" . $this->config->ldap_host. ":" . $this->config->ldaps_port;
+            // ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            $ldapuri = 'ldaps://' . $this->config->ldap_host . ':' . $this->config->ldaps_port;
         } else {
-            $ldapuri = "ldap://" . $this->config->ldap_host. ":" . $this->config->ldap_port;
+            $ldapuri = 'ldap://' . $this->config->ldap_host . ':' . $this->config->ldap_port;
         }
-
 
         $messages = ['ldapuri' => $ldapuri];
 
@@ -137,8 +135,8 @@ class LDAPManager
     public function loadAttributes(?string $username = null, ?array $ldapAttributes = null): ?array
     {
         $samaccountname = $username ?? $this->username;
-        $ldapAttributes = $ldapAttributes ?? $this->config->attributes;
-        $filter         = "(samaccountname={$samaccountname})";
+        $ldapAttributes ??= $this->config->attributes;
+        $filter = "(samaccountname={$samaccountname})";
         $result = @ldap_search($this->connection, $this->config->search_base, $filter, $ldapAttributes);
 
         if ($result === false) {
@@ -152,7 +150,9 @@ class LDAPManager
 
         $aduser = ldap_first_entry($this->connection, $result);
 
-        if ($aduser === false) { return null; }
+        if ($aduser === false) {
+            return null;
+        }
 
         $adattributes = ldap_get_attributes($this->connection, $aduser);
 
@@ -239,11 +239,9 @@ class LDAPManager
 
     public function loadUserAccountControl()
     {
-
         if (! isset($this->adattributes['UserAccountControl'])) {
             return '';
         }
-
     }
 
     /**
@@ -251,15 +249,12 @@ class LDAPManager
      */
     public function isAccountDisabled(): bool
     {
-
         if (! isset($this->adattributes['UserAccountControl'])) {
             return '';
         }
 
-        return ($this->adattributes['UserAccountControl'] & self::UAC_ACCOUNTDISABLE) == self::UAC_ACCOUNTDISABLE;
-
+        return ($this->adattributes['UserAccountControl'] & self::UAC_ACCOUNTDISABLE) === self::UAC_ACCOUNTDISABLE;
     }
-
 
     public function getGroupSids()
     {
@@ -309,13 +304,11 @@ class LDAPManager
      */
     public function isLdapAccountDisabled(): ?bool
     {
-
-        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+        if ($this->ldapAttribute('userAccountControl') === '') {
             return null;
         }
 
-        return (intval($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) == LDAPManager::UAC_ACCOUNTDISABLE;
-
+        return ((int) ($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) === LDAPManager::UAC_ACCOUNTDISABLE;
     }
 
     /**
@@ -323,12 +316,10 @@ class LDAPManager
      */
     public function isLdapAccountEnabled(): ?bool
     {
-
-        if ( $this->ldapAttribute('userAccountControl') == '' ) {
+        if ($this->ldapAttribute('userAccountControl') === '') {
             return null;
         }
 
-        return (intval($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) != LDAPManager::UAC_ACCOUNTDISABLE;
-
+        return ((int) ($this->ldapAttribute('userAccountControl')) & LDAPManager::UAC_ACCOUNTDISABLE) !== LDAPManager::UAC_ACCOUNTDISABLE;
     }
 }
