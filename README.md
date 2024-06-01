@@ -29,7 +29,17 @@ Usage of Shield requires the following:
 Installation is done through Composer.
 
 ```console
+composer config minimum-stability dev
+composer config prefer-stable true
+
 composer require rakoitde/shieldldap dev-develop
+```
+
+### Setup
+
+```console
+php spark shield:setup
+php spark shieldldap:setup
 ```
 
 ### Config AuthLdap in .env

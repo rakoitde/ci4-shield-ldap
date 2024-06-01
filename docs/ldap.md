@@ -20,6 +20,9 @@ If you don't run shield:setup in installation process, the shieldldap:setup don'
 Install "rakoitde/shieldldap" via Composer.
 
 ```console
+composer config minimum-stability dev
+composer config prefer-stable true
+
 composer require rakoitde/shieldldap dev-develop
 ```
 
