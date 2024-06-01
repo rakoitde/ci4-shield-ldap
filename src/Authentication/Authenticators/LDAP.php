@@ -344,7 +344,6 @@ class LDAP implements AuthenticatorInterface
         }
 
         if ($ldapManager->isAuthenticated()) {
-
             // Update user entity with ldap attributes and group sids
             $ldapAttributes        = $ldapManager->getAttributes();
             $user->mail            = $ldapAttributes['mail'];
@@ -353,6 +352,11 @@ class LDAP implements AuthenticatorInterface
             $user->ldap_attributes = json_encode($ldapAttributes);
             $user->ldap_group_sids = json_encode($ldapManager->getGroupSids());
             $this->provider->update($user->id, $user);
+
+            if (config('AuthLDAP')->storePasswordInSession) {
+                $encrypter = Services::encrypter();
+                session()->set('password', $encrypter->encrypt($givenPassword));
+            }
 
             return new Result([
                 'success'   => true,
@@ -364,7 +368,6 @@ class LDAP implements AuthenticatorInterface
             'success' => false,
             'reason'  => lang('AuthLDAP.ldapBindingFailed'),
         ]);
-
     }
 
     /**
@@ -502,7 +505,7 @@ class LDAP implements AuthenticatorInterface
     /**
      * Gets identities for action
      *
-     * @return UserIdentity[]
+     * @return list<UserIdentity>
      */
     private function getIdentitiesForAction(User $user): array
     {
@@ -513,7 +516,7 @@ class LDAP implements AuthenticatorInterface
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     private function getActionTypes(): array
     {
