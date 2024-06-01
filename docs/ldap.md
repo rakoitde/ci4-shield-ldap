@@ -19,21 +19,9 @@ If you don't run shield:setup in installation process, the shieldldap:setup don'
 
 Install "rakoitde/shieldldap" via Composer.
 
-    ```json
-        "require-dev": {
-            "rakoitde/shieldldap": "dev-develop"
-        },
-        "repositories": [
-            {
-                "type": "vcs",
-                "url": "https://github.com/rakoitde/ci4-shield-ldap"
-            }
-        ],
-    ```
-
-    ```console
-    composer update
-    ```
+```console
+composer require rakoitde/shieldldap dev-develop
+```
 
 ### Initial Setup
 
