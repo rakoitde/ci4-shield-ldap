@@ -28,20 +28,8 @@ Usage of Shield requires the following:
 
 Installation is done through Composer.
 
-```json
-    "require-dev": {
-        "rakoitde/shieldldap": "dev-develop"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/rakoitde/ci4-shield-ldap"
-        }
-    ],
-```
-
 ```console
-composer update
+composer require rakoitde/shieldldap dev-develop
 ```
 
 See the (docs)[docs] for more specific instructions on installation and usage recommendations.
