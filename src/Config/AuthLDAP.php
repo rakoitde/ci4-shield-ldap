@@ -34,12 +34,27 @@ class AuthLDAP extends BaseConfig
     public string $ldaps_port = '636';
 
     /**
+     * Use ldaps
+     */
+    public bool $use_ldaps = true;
+
+    /**
      * The ldaps domain to extend the user like "example\username"
      */
     public string $ldap_domain = 'example';
 
     /**
-     * The ldaps searchbase like "dc=int,dc=company,dc=local" 
+     * Username
+     */
+    public string $username = 'username';
+
+    /**
+     * Password
+     */
+    public string $password = 'password';
+
+    /**
+     * The ldaps searchbase like "dc=int,dc=company,dc=local"
      */
     public string $search_base = '';
 
@@ -49,7 +64,12 @@ class AuthLDAP extends BaseConfig
      * @var string[]
      */
     public array $attributes = [
-        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress','displayName', 'samaccountname', 'thumbnailPhoto'];
+        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress','displayName', 'samaccountname', 'thumbnailPhoto', 'userAccountControl'];
+
+    /**
+     * Store encrypted Password in session
+     */
+    public bool $storePasswordInSession = false;
 
     /**
      * /**
