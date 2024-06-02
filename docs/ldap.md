@@ -36,11 +36,74 @@ composer require rakoitde/shieldldap dev-develop
 
     Configure **app/Config/AuthLDAP.php** for your needs.
 
+    It is recommended that the AuthLdap settings are made in the .env to prevent internal company information from becoming public
+
+    ```console
+    #--------------------------------------------------------------------
+    # Shield AuthLdap
+    #--------------------------------------------------------------------
+
+    authldap.ldap_host              = 
+    authldap.ldap_domain            = 
+    authldap.search_base            = 
+    authldap.storePasswordInSession = false
+    authldap.use_ldaps              = true
+    authldap.username               = 
+    authldap.password               = 
+    ```
+
+2. Check your config
+
+    ```console
+    php spark shieldldap:check
+
+    Username : ldaptest
+    password : ********
+    AuthLDAP config
+      ldap_host:              ldap.your-domain.local
+      ldap_port:              389
+      ldaps_port:             636
+      use_ldaps:              true
+      ldap_domain:            your-domain
+      search_base:            dc=your-domain,dc=local
+      storePasswordInSession: true
+      attributes:             objectSID, distinguishedname, displayName, title, description, cn, givenName, sn, mail, co, telephoneNumber, mobile, company, department, l, postalCode, streetAddress, displayName, samaccountname, thumbnailPhoto, userAccountControl
+
+    AuthLDAP ldap:// connect
+      ldap_uri:        ldap://ldap.your-domain.local:389
+      Ldap_connect:    Success
+      isConnected:     true
+      bind user:       ldaptest
+      bind domain:     your-domain
+      bind ldap_user:  your-domain\ldaptest
+      isAuthenticated: true
+      Ldap_connect:    Success
+
+    AuthLDAP test LDAPs config
+      File C:\Openldap\sysconf\ldap.conf found
+      TLS_REQCERT:
+        04: TLS_REQCERT never OK
+      TLS_CACERT:
+        07: TLS_CACERT C:\MAMP\ssl\cacert.pem
+          File C:\MAMP\ssl\cacert.pem found
+
+    AuthLDAP ldaps:// connect
+      ldap_uri:        ldaps://ldap.your-domain.local:636
+      Ldap_connect:    Success
+      isConnected:     true
+      bind user:
+      bind domain:     your-domain
+      bind ldap_user:  your-domain\ldaptest
+      isAuthenticated: true
+      Ldap_connect:    Success
+
+    ```
+
 ### Manual Setup
 
 1. AuthLDAP.php
 
-Copy the **AuthLDAP.php** from **vendor/rakoitde/shieldldap/src/Config/** into your project's config folder and update the namespace to `Config`. You will also need to have these classes extend the original classes. See the example below.
+    Copy the **AuthLDAP.php** from **vendor/rakoitde/shieldldap/src/Config/** into your project's config folder and update the namespace to `Config`. You will also need to have these classes extend the original classes. See the example below.
 
     ```php
     // new file - app/Config/AuthLDAP.php
@@ -48,7 +111,8 @@ Copy the **AuthLDAP.php** from **vendor/rakoitde/shieldldap/src/Config/** into y
 
     declare(strict_types=1);
 
-    namespace Rakoitde\Shieldldap\Config;
+    //namespace Rakoitde\Shieldldap\Config;
+    namespace Config;
 
     use App\Config\Auth;
     use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
@@ -60,11 +124,27 @@ Copy the **AuthLDAP.php** from **vendor/rakoitde/shieldldap/src/Config/** into y
     {
     ```
 
-Configure **app/Config/AuthLDAP.php** for your needs.
+    Configure **app/Config/AuthLDAP.php** for your needs.
+
+    It is recommended that the AuthLdap settings are made in the .env to prevent internal company information from becoming public
+
+    ```console
+    #--------------------------------------------------------------------
+    # Shield AuthLdap
+    #--------------------------------------------------------------------
+
+    authldap.ldap_host              = 
+    authldap.ldap_domain            = 
+    authldap.search_base            = 
+    authldap.storePasswordInSession = false
+    authldap.use_ldaps              = true
+    authldap.username               = 
+    authldap.password               = 
+    ```
 
 2. Auth.php
 
-If your **app/Config/Auth.php** is not up-to-date, you also need to update it. Check **vendor/codeigniter4/shield/src/Config/Auth.php** and apply the differences.
+    If your **app/Config/Auth.php** is not up-to-date, you also need to update it. Check **vendor/codeigniter4/shield/src/Config/Auth.php** and apply the differences.
 
     You need to add the following constants:
     ```php
@@ -113,6 +193,7 @@ If your **app/Config/Auth.php** is not up-to-date, you also need to update it. C
     ```
 
 
+
 ## Protecting Routes
 
 The first way to specify which routes are protected is to use the `AuthLDAP` controller
@@ -124,7 +205,7 @@ would use the `$globals` setting on **app/Config/Filters.php**.
 ```php
 public array $globals = [
     'before' => [
-        'session' => ['except' => ['login*', 'register']],
+        'session' => ['except' => ['login*', 'register', 'auth/a/*']],
     ],
 ```
 
@@ -135,7 +216,7 @@ file itself:
 //service('auth')->routes($routes);
 service('auth')->routes($routes, ['except' => ['login']]);
 $routes->get('login', '\CodeIgniter\Shield\Controllers\LoginController::loginView');
-$routes->post('login', '\Rakoitde\Shieldldap\Controllers\Auth\LoginController::ldapLogin');
+$routes->post('login', '\Rakoitde\Shieldldap\Controllers\LoginController::ldapLogin');
 ```
 
 
