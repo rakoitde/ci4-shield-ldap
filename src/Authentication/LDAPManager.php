@@ -134,9 +134,10 @@ class LDAPManager
      */
     public function loadAttributes(?string $username = null, ?array $ldapAttributes = null): ?array
     {
-        $samaccountname = $username ?? $this->username;
+        $username = $username ?? $this->username;
         $ldapAttributes ??= $this->config->attributes;
-        $filter = "(samaccountname={$samaccountname})";
+        $filter = "({$this->config->username_ldap_attribute}={$username})";
+
         $result = @ldap_search($this->connection, $this->config->search_base, $filter, $ldapAttributes);
 
         if ($result === false) {

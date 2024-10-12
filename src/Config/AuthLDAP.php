@@ -67,6 +67,11 @@ class AuthLDAP extends BaseConfig // class AuthLDAP extends ShieldAuthLDAP
         'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress', 'displayName', 'samaccountname', 'thumbnailPhoto', 'userAccountControl'];
 
     /**
+     * LDAP attribute to use as username like 'samaccountname' or 'uid'
+     */
+    public string $username_ldap_attribute = 'samaccountname';
+
+     /**
      * Store encrypted Password in session
      */
     public bool $storePasswordInSession = false;
