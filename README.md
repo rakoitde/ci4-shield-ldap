@@ -51,13 +51,14 @@ It is recommended that the AuthLdap settings are made in the .env to prevent int
 # Shield AuthLdap
 #--------------------------------------------------------------------
 
-authldap.ldap_host              = 
-authldap.ldap_domain            = 
-authldap.search_base            = 
-authldap.storePasswordInSession = false
-authldap.use_ldaps              = true
-authldap.username               = 
-authldap.password               = 
+authldap.ldap_host               = 
+authldap.ldap_domain             = 
+authldap.search_base             = 
+authldap.storePasswordInSession  = false
+authldap.use_ldaps               = true
+authldap.username                = 
+authldap.password                = 
+authldap.username_ldap_attribute = uid
 ```
 
 See the (docs)[docs] for more specific instructions on installation and usage recommendations.
