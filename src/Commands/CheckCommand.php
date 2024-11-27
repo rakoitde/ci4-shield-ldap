@@ -7,9 +7,12 @@ namespace Rakoitde\Shieldldap\Commands;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use LDAP\Connection;
+use Rakoitde\Shieldldap\Config\AuthLDAP;
 
 class CheckCommand extends BaseCommand
 {
+    public const LDAP_FORMAT_USERNAME_DEFAULT = 'DLN';   // Down-Level Logon Name (domain\username)
+
     /**
      * The Command's Group
      *
@@ -57,7 +60,7 @@ class CheckCommand extends BaseCommand
 
     protected string $username = '';
     protected string $password = '';
-    protected Connection|bool $connection;
+    protected bool|Connection $connection;
     protected bool $bind = false;
     protected AuthLDAP $config;
 
@@ -89,6 +92,7 @@ class CheckCommand extends BaseCommand
         CLI::write('  ldaps_port:             ' . CLI::color($ldapConfig->ldaps_port, 'white'), 'green');
         CLI::write('  use_ldaps:              ' . CLI::color($ldapConfig->use_ldaps ? 'true' : 'false', 'white'), 'green');
         CLI::write('  ldap_domain:            ' . CLI::color($ldapConfig->ldap_domain, 'white'), 'green');
+        CLI::write('  ldap_format_username:   ' . CLI::color($ldapConfig->ldap_user_format . ' - ' . $this->getLdapFormatDescription($ldapConfig->ldap_user_format), 'white'), 'green');
         CLI::write('  search_base:            ' . CLI::color($ldapConfig->search_base, 'white'), 'green');
         CLI::write('  storePasswordInSession: ' . CLI::color($ldapConfig->storePasswordInSession ? 'true' : 'false', 'white'), 'green');
         CLI::write('  attributes:             ' . CLI::color(implode(', ', $ldapConfig->attributes), 'white'), 'green');
@@ -186,8 +190,18 @@ class CheckCommand extends BaseCommand
      */
     public function bind()
     {
-        $ldap_domain = config('AuthLDAP')->ldap_domain;
-        $ldap_user   = $ldap_domain . '\\' . $this->username;
+        $ldap_domain      = config('AuthLDAP')->ldap_domain;
+        $ldap_user_format = config('AuthLDAP')->ldap_user_format ?? self::LDAP_FORMAT_USERNAME_DEFAULT;
+
+        switch (strtoupper($ldap_user_format)) {
+            case 'UPN':
+                $ldap_user = $this->username . '@' . $ldap_domain;
+                break;
+            case 'DLN':
+            default:
+                $ldap_user = $ldap_domain . '\\' . $this->username;
+                break;
+        }
 
         CLI::write('  bind user:       ' . CLI::color($this->username, 'white'), 'green');
         CLI::write('  bind domain:     ' . CLI::color($ldap_domain, 'white'), 'green');
@@ -207,5 +221,18 @@ class CheckCommand extends BaseCommand
         }
 
         return $bind;
+    }
+
+    /**
+     * Get LDAP format username description
+     */
+    private function getLdapFormatDescription(string $format): string
+    {
+        $descriptions = [
+            'UPN' => 'User Principal Name (username@your-domain)',
+            'DLN' => 'Down-Level Logon Name (your-domain\\username)',
+        ];
+
+        return $descriptions[$format] ?? 'Unknown format';
     }
 }

@@ -65,6 +65,7 @@ composer require rakoitde/shieldldap dev-develop
       ldaps_port:             636
       use_ldaps:              true
       ldap_domain:            your-domain
+      ldap_format_username:   DLN - Down-Level Logon Name (your-domain\username)
       search_base:            dc=your-domain,dc=local
       storePasswordInSession: true
       attributes:             objectSID, distinguishedname, displayName, title, description, cn, givenName, sn, mail, co, telephoneNumber, mobile, company, department, l, postalCode, streetAddress, displayName, samaccountname, thumbnailPhoto, userAccountControl
@@ -171,7 +172,7 @@ composer require rakoitde/shieldldap dev-develop
     // ...
         public array $views = [
             'login'                       => '\Rakoitde\Shieldldap\Views\login',
-
+        ]
     // ...
 
         public array $passwordValidators = [

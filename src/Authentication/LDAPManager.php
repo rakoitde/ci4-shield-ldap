@@ -36,10 +36,11 @@ class LDAPManager
     public const UAC_PASSWORD_EXPIRED               = 8388608;   // hex = 0x800000
     public const UAC_TRUSTED_TO_AUTH_FOR_DELEGATION = 16777216;   // hex = 0x1000000
     public const UAC_PARTIAL_SECRETS_ACCOUNT        = 67108864;   // hex = 0x04000000
+    public const LDAP_FORMAT_USERNAME_DEFAULT       = 'DLN';   // Down-Level Logon Name (domain\username)
 
     protected string $username;
     protected string $password;
-    protected Connection|bool $connection;
+    protected bool|Connection $connection;
     protected bool $bind = false;
     protected string $dn;
     protected string $ldap_error;
@@ -78,7 +79,7 @@ class LDAPManager
         $this->connection = @ldap_connect($ldapuri);
 
         if ($this->connection) {
-            log_message('info', 'LDAP connect: syntactic check of the provided parameter successful');            
+            log_message('info', 'LDAP connect: syntactic check of the provided parameter successful');
         } else {
             log_message('error', 'LDAP connect: syntactic check failed. please check ldap parameter');
         }
@@ -114,8 +115,18 @@ class LDAPManager
      */
     public function auth()
     {
-        $ldap_domain = config('AuthLDAP')->ldap_domain;
-        $ldap_user   = $ldap_domain . '\\' . $this->username;
+        $ldap_domain      = config('AuthLDAP')->ldap_domain;
+        $ldap_user_format = config('AuthLDAP')->ldap_user_format ?? self::LDAP_FORMAT_USERNAME_DEFAULT;
+
+        switch (strtoupper($ldap_user_format)) {
+            case 'UPN':
+                $ldap_user = $this->username . '@' . $ldap_domain;
+                break;
+            case 'DLN':
+            default:
+                $ldap_user = $ldap_domain . '\\' . $this->username;
+                break;
+        }
 
         ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
