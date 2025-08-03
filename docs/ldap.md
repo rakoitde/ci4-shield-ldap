@@ -111,11 +111,11 @@ composer require rakoitde/shieldldap dev-develop
 
     declare(strict_types=1);
 
-    //namespace Rakoitde\Shieldldap\Config;
+    //namespace Fortyseeds\ShieldLdap\Config;
     namespace Config;
 
     use App\Config\Auth;
-    use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
+    use Fortyseeds\ShieldLdap\Config\AuthLDAP as ShieldAuthLDAP;
 
     /**
      * LDAP Authenticator Configuration
@@ -148,8 +148,8 @@ composer require rakoitde/shieldldap dev-develop
 
     You need to add the following constants:
     ```php
-    use Rakoitde\Shieldldap\Models\UserModel;
-    use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
+    use Fortyseeds\ShieldLdap\Models\UserModel;
+    use Fortyseeds\ShieldLdap\Authentication\Authenticators\LDAP;
 
     // ...
 
@@ -170,7 +170,7 @@ composer require rakoitde/shieldldap dev-develop
 
     // ...
         public array $views = [
-            'login'                       => '\Rakoitde\Shieldldap\Views\login',
+            'login'                       => '\Fortyseeds\ShieldLdap\Views\login',
 
     // ...
 
@@ -189,7 +189,7 @@ composer require rakoitde/shieldldap dev-develop
 
     // ...
 
-        public string $userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;
+        public string $userProvider = \Fortyseeds\ShieldLdap\Models\UserModel::class;
     ```
 
 
@@ -216,7 +216,7 @@ file itself:
 //service('auth')->routes($routes);
 service('auth')->routes($routes, ['except' => ['login']]);
 $routes->get('login', '\CodeIgniter\Shield\Controllers\LoginController::loginView');
-$routes->post('login', '\Rakoitde\Shieldldap\Controllers\LoginController::ldapLogin');
+$routes->post('login', '\Fortyseeds\ShieldLdap\Controllers\LoginController::ldapLogin');
 ```
 
 

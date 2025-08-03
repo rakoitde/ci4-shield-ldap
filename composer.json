@@ -1,17 +1,25 @@
 {
-    "name": "rakoitde/shieldldap",
-    "description": "LDAP Authentication and Authorization for CodeIgniter 4",
+    "name": "fortyseeds/ci4-shield-ldap",
+	 "orig_name": "rakoitde/shieldldap",
+    "description": "Enhanced LDAP Authentication for CodeIgniter 4 Shield - Supports both Active Directory and OpenLDAP/FreeIPA",
     "type": "library",
     "license": "MIT",
+    "keywords": ["codeigniter4", "shield", "ldap", "authentication", "active-directory", "openldap", "freeeipa", "389-directory"],
     "autoload": {
         "psr-4": {
-            "Rakoitde\\Shieldldap\\": "src/"
+            "Fortyseeds\\ShieldLdap\\": "src/"
         }
     },
     "authors": [
         {
             "name": "Kornberger, Ralf",
-            "email": "rakoitde@gmail.com"
+            "email": "rakoitde@gmail.com",
+            "role": "Original Author"
+        },
+        {
+            "name": "FortySeeds",
+            "email": "office@fortyseeds.com",
+            "role": "Enhanced Version"
         }
     ],
     "minimum-stability": "dev",

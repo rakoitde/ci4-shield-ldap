@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Commands;
+namespace Fortyseeds\ShieldLdap\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;

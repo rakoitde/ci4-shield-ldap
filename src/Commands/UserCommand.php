@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Commands;
+namespace Fortyseeds\ShieldLdap\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
-use Rakoitde\Shieldldap\Authentication\LDAPManager;
-use Rakoitde\Shieldldap\Entities\User;
-use Rakoitde\Shieldldap\Models\UserModel;
+use Fortyseeds\ShieldLdap\Authentication\LDAPManager;
+use Fortyseeds\ShieldLdap\Entities\User;
+use Fortyseeds\ShieldLdap\Models\UserModel;
 
 class UserCommand extends BaseCommand
 {

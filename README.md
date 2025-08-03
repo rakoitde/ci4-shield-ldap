@@ -1,72 +1,182 @@
-# CodeIgniter ShieldLDAP
+# Enhanced LDAP Authentication for CodeIgniter 4 Shield
 
-ShieldLDAP is an CodeIgniter Shield Addon to authenticate against an LDAP Server.
+Enhanced version of the LDAP Authentication library for CodeIgniter 4 Shield that supports both **Active Directory** and **OpenLDAP/FreeIPA/389 Directory** servers.
 
-See the [An Official Auth Library](https://github.com/codeigniter4/shield/blob/develop/README.md) for more Info.
+## Features
 
-## Authentication Methods
+- ✅ **Active Directory** support (domain\username format)
+- ✅ **OpenLDAP/FreeIPA/389 Directory** support (DN format)
+- ✅ Automatic user creation on first login
+- ✅ LDAP attribute synchronization
+- ✅ Group membership handling
+- ✅ Configurable attribute mapping
+- ✅ Shield-compatible user identity management
 
-ShieldLDAP provides the **LDAP-based** method.
+## Installation
 
-### LDAP
-
-This is your typical username/password system you see everywhere. It includes a secure "remember me" functionality.
-This can be used for standard web applications, as well as for single page applications. Includes full controllers and
-basic views for all standard functionality, like registration, login, forgot password, etc.
-
-## Getting Started
-
-### Prerequisites
-
-Usage of Shield requires the following:
-
-- A [CodeIgniter 4.3.5+](https://github.com/codeigniter4/CodeIgniter4/) based project
-- [Composer](https://getcomposer.org/) for package management
-- PHP 7.4.3+
-
-### Installation
-
-Installation is done through Composer.
-
-```console
-composer config minimum-stability dev
-composer config prefer-stable true
-
-composer require rakoitde/shieldldap dev-develop
+```bash
+composer require fortyseeds/ci4-shield-ldap
 ```
 
-### Setup
+## Configuration
 
-```console
-php spark shield:setup
-php spark shieldldap:setup
+### 1. Basic Setup
+
+Copy the configuration file to your app:
+
+```bash
+cp vendor/fortyseeds/ci4-shield-ldap/src/Config/AuthLDAP.php app/Config/AuthLDAP.php
 ```
 
-### Config AuthLdap in .env
+### 2. Configure for Active Directory
 
-It is recommended that the AuthLdap settings are made in the .env to prevent internal company information from becoming public
+```php
+// app/Config/AuthLDAP.php
+public string $ldap_host = 'ldap://dc.company.com';
+public string $ldap_port = '389';
+public bool $use_ldaps = true; // Use port 636 for LDAPS
+public string $ldap_type = 'ad';
+public string $ldap_domain = 'company'; // For domain\username format
+public string $username = 'CN=Service Account,OU=Service Accounts,DC=company,DC=com';
+public string $password = 'service_password';
+public string $search_base = 'OU=Users,DC=company,DC=com';
 
-```console
-#--------------------------------------------------------------------
-# Shield AuthLdap
-#--------------------------------------------------------------------
-
-authldap.ldap_host              = 
-authldap.ldap_domain            = 
-authldap.search_base            = 
-authldap.storePasswordInSession = false
-authldap.use_ldaps              = true
-authldap.username               = 
-authldap.password               = 
+// Active Directory attributes
+public array $attributes = [
+    'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 
+    'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 
+    'company', 'department', 'l', 'postalCode', 'streetAddress',
+    'samaccountname', 'thumbnailPhoto', 'userAccountControl'
+];
 ```
 
-See the (docs)[docs] for more specific instructions on installation and usage recommendations.
+### 3. Configure for OpenLDAP/FreeIPA
+
+```php
+// app/Config/AuthLDAP.php
+public string $ldap_host = 'ldap://ipa.company.com';
+public string $ldap_port = '389';
+public bool $use_ldaps = true; // Use port 636 for LDAPS
+public string $ldap_type = 'ldap';
+public string $login_attribute = 'uid'; // or 'cn' depending on your schema
+public string $username = 'cn=admin,dc=company,dc=com';
+public string $password = 'admin_password';
+public string $search_base = 'cn=users,cn=accounts,dc=company,dc=com';
+
+// OpenLDAP/FreeIPA attributes
+public array $attributes = [
+    'uid', 'cn', 'dn', 'distinguishedName', 'entryUUID', 'entryDN',
+    'displayName', 'title', 'description', 'givenName', 'sn', 'mail',
+    'telephoneNumber', 'mobile', 'o', 'ou', 'l', 'postalCode', 'street',
+    'employeeNumber', 'employeeType', 'departmentNumber',
+    'krbPrincipalName', 'krbCanonicalName', 'ipaUniqueID', 'memberOf'
+];
+```
+
+### 4. Update Shield Configuration
+
+```php
+// app/Config/Auth.php
+public array $authenticators = [
+    'ldap' => \Rakoitde\Shieldldap\Authentication\Authenticators\LDAP::class,
+    'session' => \CodeIgniter\Shield\Authentication\Authenticators\Session::class,
+    'tokens' => \CodeIgniter\Shield\Authentication\Authenticators\AccessTokens::class,
+];
+
+public array $authenticationChain = [
+    'ldap',
+    'session',
+];
+```
+
+### 5. Database Migration
+
+The package includes database migrations for additional LDAP fields. Run:
+
+```bash
+php spark migrate -all
+```
+
+## Usage
+
+### Authentication Flow
+
+1. **Active Directory**: Users login with `domain\username` or just `username`
+2. **OpenLDAP/FreeIPA**: Users login with their `uid` (e.g., `john.doe`)
+
+The system automatically:
+- Authenticates against LDAP
+- Creates local user account on first login
+- Synchronizes LDAP attributes
+- Manages user identity for Shield compatibility
+
+### Testing LDAP Connection
+
+```bash
+php spark shieldldap:check
+```
+
+### Managing LDAP Users
+
+```bash
+php spark shieldldap:user
+```
+
+## Authentication Types Comparison
+
+| Feature | Active Directory | OpenLDAP/FreeIPA |
+|---------|------------------|-------------------|
+| Login Format | `domain\username` | `uid` or `cn` |
+| DN Format | Automatic via domain | `uid=user,cn=users,cn=accounts,dc=domain,dc=com` |
+| Service Account | `domain\service` or `service@domain.com` | `cn=admin,dc=domain,dc=com` |
+| Search Base | `OU=Users,DC=domain,DC=com` | `cn=users,cn=accounts,dc=domain,dc=com` |
+| Primary Attributes | `samaccountname`, `objectSID` | `uid`, `ipaUniqueID` |
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Cannot assign null to property"**: Ensure LDAP attributes exist in your directory
+2. **"UserIdentity not found"**: The enhanced version automatically creates email identities
+3. **Connection timeout**: Check firewall, ports (389/636), and network connectivity
+4. **Authentication fails**: Verify service account credentials and permissions
+
+### Debug Mode
+
+Enable debug logging in your environment:
+
+```bash
+CI_ENVIRONMENT = development
+```
+
+Check logs in `writable/logs/` for detailed LDAP authentication information.
 
 ## Contributing
 
-ShieldLDAP does accept and encourage contributions from the community in any shape. It doesn't matter
-whether you can code, write documentation, or help find bugs, all contributions are welcome.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
+MIT License - see LICENSE file for details.
+
+## Credits
+
+- Original package by [Ralf Kornberger](https://github.com/rakoitde)
+- Enhanced by [FortySeeds](https://github.com/FortySeeds) for OpenLDAP/FreeIPA support
+- Built for [CodeIgniter 4 Shield](https://github.com/codeigniter4/shield)
+
+## Changelog
+
+### v2.0.0 (Enhanced Version)
+- ✅ Added OpenLDAP/FreeIPA/389 Directory support
+- ✅ Flexible DN construction based on LDAP type
+- ✅ Enhanced error handling and user identity management
+- ✅ Improved attribute mapping for different LDAP servers
+- ✅ Comprehensive documentation for both AD and OpenLDAP
+
+### v1.x (Original)
+- Active Directory support only

@@ -1,12 +1,37 @@
 <?php
 
-namespace Rakoitde\Shieldldap\Database\Migrations;
+namespace Fortyseeds\ShieldLdap\Database\Migrations;
 
+use CodeIgniter\Database\Forge;
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Shield\Config\Auth;
 
 class AlterTableUsers extends Migration
 {
-    public function up()
+
+	/**
+     * Auth Table names
+     */
+    private array $tables;
+
+    private array $attributes;
+
+    public function __construct(?Forge $forge = null)
+    {
+        /** @var Auth $authConfig */
+        $authConfig = config('Auth');
+
+        if ($authConfig->DBGroup !== null) {
+            $this->DBGroup = $authConfig->DBGroup;
+        }
+
+        parent::__construct($forge);
+
+        $this->tables     = $authConfig->tables;
+        $this->attributes = ($this->db->getPlatform() === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+    }
+    
+    public function up(): void
     {
         $fields = [
             'mail'            => ['type' => 'VARCHAR', 'constraint' => 50, 'after' => 'username'],
@@ -16,11 +41,11 @@ class AlterTableUsers extends Migration
             'ldap_group_sids' => ['type' => 'TEXT', 'after' => 'ldap_attributes'],
         ];
 
-        $this->forge->addColumn('users', $fields);
+        $this->forge->addColumn($this->tables['users'], $fields);
     }
 
     public function down()
     {
-        $this->forge->dropColumn('users', ['mail', 'object_sid', 'dn', 'ldap_attributes', 'ldap_group_sids']);
+        $this->forge->dropColumn($this->tables['users'], ['mail', 'object_sid', 'dn', 'ldap_attributes', 'ldap_group_sids']);
     }
 }

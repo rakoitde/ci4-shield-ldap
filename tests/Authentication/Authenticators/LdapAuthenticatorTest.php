@@ -18,7 +18,7 @@ use CodeIgniter\Shield\Models\UserModel;
 use CodeIgniter\Shield\Result;
 use CodeIgniter\Test\Mock\MockEvents;
 use Config\Services;
-use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
+use Fortyseeds\ShieldLdap\Authentication\Authenticators\LDAP;
 use Tests\Support\DatabaseTestCase;
 use Tests\Support\FakeUser;
 

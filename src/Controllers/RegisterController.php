@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Controllers;
+namespace Fortyseeds\ShieldLdap\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\Events\Events;

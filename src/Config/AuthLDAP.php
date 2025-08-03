@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Config;
+namespace Fortyseeds\ShieldLdap\Config;
 
 use App\Config\Auth;
 use CodeIgniter\Config\BaseConfig;
 
-// use Rakoitde\Shieldldap\Config\AuthLDAP as ShieldAuthLDAP;
+// use Fortyseeds\ShieldLdap\Config\AuthLDAP as ShieldAuthLDAP;
 
 /**
  * LDAP Authenticator Configuration
@@ -40,31 +40,88 @@ class AuthLDAP extends BaseConfig // class AuthLDAP extends ShieldAuthLDAP
 
     /**
      * The ldaps domain to extend the user like "example\username"
+     * Only used when ldap_type = 'ad'
+     * 
+     * Examples:
+     * - For domain.com: set to 'domain'
+     * - User 'john' becomes 'domain\john'
      */
     public string $ldap_domain = 'example';
 
     /**
-     * Username
+     * LDAP type: 'ad' for Active Directory, 'ldap' for standard LDAP/OpenLDAP/FreeIPA
+     * 
+     * AD (Active Directory):
+     * - Uses domain\username format for authentication
+     * - Set ldap_type = 'ad'
+     * - Set ldap_domain = 'yourdomain.com'
+     * 
+     * OpenLDAP/FreeIPA/389 Directory:
+     * - Uses DN format like uid=username,cn=users,cn=accounts,dc=domain,dc=com
+     * - Set ldap_type = 'ldap'
+     * - Set login_attribute = 'uid' (or 'cn' depending on your schema)
+     */
+    public string $ldap_type = 'ad';
+
+    /**
+     * Login attribute for building user DN when ldap_type = 'ldap'
+     * 
+     * Common values:
+     * - 'uid' for OpenLDAP/FreeIPA/389 Directory
+     * - 'cn' for some LDAP implementations
+     * - 'samaccountname' for AD (but use ldap_type = 'ad' instead)
+     * 
+     * This creates DNs like: uid=username,cn=users,cn=accounts,dc=domain,dc=com
+     */
+    public string $login_attribute = 'uid';
+
+    /**
+     * Service account username for LDAP binding
+     * 
+     * AD: Can be 'domain\serviceaccount' or 'serviceaccount@domain.com'
+     * OpenLDAP: Full DN like 'cn=admin,dc=domain,dc=com'
      */
     public string $username = 'username';
 
     /**
-     * Password
+     * Service account password for LDAP binding
      */
     public string $password = 'password';
 
     /**
-     * The ldaps searchbase like "dc=int,dc=company,dc=local"
+     * The LDAP search base for finding users
+     * 
+     * Examples:
+     * - AD: 'OU=Users,DC=company,DC=local'
+     * - OpenLDAP: 'ou=people,dc=company,dc=local'
+     * - FreeIPA: 'cn=users,cn=accounts,dc=domain,dc=com'
      */
     public string $search_base = '';
 
     /**
-     * The ldap attributes
+     * The LDAP attributes to retrieve
+     * 
+     * Active Directory attributes:
+     * ['objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn',
+     *  'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress',
+     *  'samaccountname', 'thumbnailPhoto', 'userAccountControl']
+     * 
+     * OpenLDAP/FreeIPA attributes (default):
+     * ['uid', 'cn', 'dn', 'distinguishedName', 'entryUUID', 'entryDN', 'displayName', 'title', 'description',
+     *  'givenName', 'sn', 'mail', 'telephoneNumber', 'mobile', 'o', 'ou', 'l', 'postalCode', 'street',
+     *  'employeeNumber', 'employeeType', 'departmentNumber', 'krbPrincipalName', 'krbCanonicalName',
+     *  'ipaUniqueID', 'memberOf']
      *
      * @var list<string>
      */
     public array $attributes = [
-        'objectSID', 'distinguishedname', 'displayName', 'title', 'description', 'cn', 'givenName', 'sn', 'mail', 'co', 'telephoneNumber', 'mobile', 'company', 'department', 'l', 'postalCode', 'streetAddress', 'displayName', 'samaccountname', 'thumbnailPhoto', 'userAccountControl'];
+        'uid', 'cn', 'dn', 'distinguishedName', 'entryUUID', 'entryDN',
+        'displayName', 'title', 'description', 'givenName', 'sn', 'mail',
+        'telephoneNumber', 'mobile', 'o', 'ou', 'l', 'postalCode', 'street',
+        'employeeNumber', 'employeeType', 'departmentNumber',
+        'krbPrincipalName', 'krbCanonicalName',
+        'ipaUniqueID', 'memberOf'
+    ];
 
     /**
      * Store encrypted Password in session

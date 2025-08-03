@@ -3,15 +3,15 @@
 // app/Controllers/Auth/LoginController.php
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Controllers;
+namespace Fortyseeds\ShieldLdap\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Shield\Authentication\Passwords;
 // use CodeIgniter\Shield\Config\AuthSession;
 
-use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;
-use Rakoitde\Shieldldap\Config\AuthLDAP;
+use Fortyseeds\ShieldLdap\Authentication\Authenticators\LDAP;
+use Fortyseeds\ShieldLdap\Config\AuthLDAP;
 
 class LoginController extends BaseController
 {

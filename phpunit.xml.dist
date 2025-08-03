@@ -70,9 +70,9 @@
 		<!-- Uncomment to use alternate testing database configuration-->
 		<env name="database.tests.hostname" value="localhost"/>
 		<env name="database.tests.database" value="endpointtools_test"/>
-		<env name="database.tests.username" value="root"/>
-		<env name="database.tests.password" value="root"/>
-		<env name="database.tests.DBDriver" value="MySQLi"/>
+		<env name="database.tests.username" value="postgres"/>
+		<env name="database.tests.password" value="postgres"/>
+		<env name="database.tests.DBDriver" value="Postgre"/>
 		<env name="database.tests.DBPrefix" value="shieldldap_"/>
 		
 	</php>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rakoitde\Shieldldap\Commands;
+namespace Fortyseeds\ShieldLdap\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
@@ -111,7 +111,7 @@ class Setup extends BaseCommand
     {
         $file     = 'Config/AuthLDAP.php';
         $replaces = [
-            'namespace Rakoitde\Shieldldap\Config' => 'namespace Config',
+            'namespace Fortyseeds\ShieldLdap\Config' => 'namespace Config',
             'use CodeIgniter\\Config\\BaseConfig;' => 'use Rakoitde\\Shieldldap\\Config\\AuthLDAP as ShieldAuthLDAP;',
             'extends BaseConfig'                   => 'extends ShieldAuthLDAP',
         ];
@@ -178,9 +178,9 @@ class Setup extends BaseCommand
     ];' => 'public array $validFields = [
         \'username\'
     ];',
-            'public string $userProvider = UserModel::class;' => 'public string $userProvider = \Rakoitde\Shieldldap\Models\UserModel::class;',
-            'use CodeIgniter\Shield\Models\UserModel;'        => 'use Rakoitde\Shieldldap\Models\UserModel;
-use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
+            'public string $userProvider = UserModel::class;' => 'public string $userProvider = \Fortyseeds\ShieldLdap\Models\UserModel::class;',
+            'use CodeIgniter\Shield\Models\UserModel;'        => 'use Fortyseeds\ShieldLdap\Models\UserModel;
+use Fortyseeds\ShieldLdap\Authentication\Authenticators\LDAP;',
         ];
 
         if ($this->replace($file, $replaces)) {
@@ -211,9 +211,9 @@ use Rakoitde\Shieldldap\Authentication\Authenticators\LDAP;',
         $ldap_routes = <<<'EOT'
             service('auth')->routes($routes, ['except' => ['login', 'register']]);
             $routes->get('login', '\CodeIgniter\Shield\Controllers\LoginController::loginView');
-            $routes->post('login', '\Rakoitde\Shieldldap\Controllers\LoginController::ldapLogin');
-            $routes->get('register', '\Rakoitde\Shieldldap\Controllers\RegisterController::registerView');
-            $routes->post('register', '\Rakoitde\Shieldldap\Controllers\RegisterController::registerAction');
+            $routes->post('login', '\Fortyseeds\ShieldLdap\Controllers\LoginController::ldapLogin');
+            $routes->get('register', '\Fortyseeds\ShieldLdap\Controllers\RegisterController::registerView');
+            $routes->post('register', '\Fortyseeds\ShieldLdap\Controllers\RegisterController::registerAction');
             EOT;
 
         $replaces = [
